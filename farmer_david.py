@@ -8,7 +8,8 @@ import time as t
 from os.path import join, dirname
 from dotenv import load_dotenv
 import requests
-import openai
+
+# import openai
 
 dotenv_path = join(dirname(__file__), ".env")
 load_dotenv(dotenv_path)
@@ -165,15 +166,17 @@ api_key = os.environ.get("OPENAI_API_KEY")
 
 def job_information(query):
     try:
-        response = openai.Completion.create(
-            engine="text-ada-001",
-            prompt=f"Provide a detailed job description and qualifications for the following role: {query}",
-            max_tokens=150,
-            api_key=api_key,
-        )
-        print(response, "response")
-        job_info = response.choices[0].text.strip()
-        speak(job_info)
+        # response = openai.Completion.create(
+        #     engine="text-ada-001",
+        #     prompt=f"Provide a detailed job description and qualifications for the following role: {query}",
+        #     max_tokens=150,
+        #     api_key=api_key,
+        # )
+        # print(response, "response")
+        # job_info = response.choices[0].text.strip()
+        # speak(job_info)
+        speak(f"The data for job {query} not available, sorry sir!")
+        # speak("This feature will be implement later, sorry for that inconvenient!")
     except Exception as e:
         print(f"An error occurred while fetching job information: {str(e)}")
         speak("Sorry, I couldn't fetch job information at the moment.")

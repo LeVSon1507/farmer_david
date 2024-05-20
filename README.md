@@ -44,7 +44,7 @@ Farmer David is a Python-based virtual assistant that can perform various tasks 
 3. Set up environment variables:
 
    -  Create a `.env` file in the project directory.
-   -  Add your API keys for OpenWeatherMap (`WEATHER_API_KEY`), News API (`NEWS_API_KEY`), and OpenAI (`OPENAI_API_KEY`) to the `.env` file.
+   -  Add your API keys for OpenWeatherMap (`WEATHER_API_KEY`), News API (`NEWS_API_KEY`) to the `.env` file.
 
 ## Usage
 

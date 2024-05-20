@@ -3,4 +3,3 @@ SpeechRecognition
 pyaudio
 python-dotenv
 requests
-openai
