@@ -3,15 +3,17 @@ import datetime
 import speech_recognition as sr
 import webbrowser as wb
 import os
+import winsound
 import time as t
-from dotenv import load_dotenv as env
+from os.path import join, dirname
+from dotenv import load_dotenv
 import requests
 import openai
 
-
-env()
+dotenv_path = join(dirname(__file__), ".env")
+load_dotenv(dotenv_path)
 weather_api_key = os.getenv("WEATHER_API_KEY")
-base_url = os.getenv("BASE_URL")
+news_api_key = os.getenv("NEWS_API_KEY")
 
 farmer_david = pyttsx3.init()
 voice = farmer_david.getProperty("voices")
@@ -53,8 +55,8 @@ def get_command():
         query = recognizer.recognize_google(audio, language="en")
         print("Son Le: " + query)
     except sr.UnknownValueError:
-        speak("I didn't catch that. Please say it again.")
-        return None
+        speak("I didn't catch that. Please type or speak again.")
+        return input("Type your command: ").lower()
     except sr.RequestError:
         speak("Sorry, I'm having trouble connecting to the service.")
         return None
@@ -74,7 +76,6 @@ def find_vscode_path():
 
 
 def get_weather(city):
-    weather_api_key = "f8396a8819aebb820783ee30e99efeb1"
     url = "http://api.openweathermap.org/data/2.5"
     base_url = f"{url}/weather?q={city}&appid={weather_api_key}&units=metric"
     response = requests.get(base_url)
@@ -93,22 +94,61 @@ def get_weather(city):
 
 
 def set_reminder(reminder_text, duration):
-    speak(f"Setting a reminder for {reminder_text} in {duration} seconds.")
-    t.sleep(duration)
-    speak(f"Reminder: {reminder_text}")
+    while True:
+        try:
+            duration = int(duration)
+            if duration <= 0:
+                raise ValueError
+            break
+        except ValueError:
+            speak("Invalid input. Please enter a positive number for the duration.")
+            duration = get_command()
+
+    def countdown_timer():
+        remaining_time = duration
+        while remaining_time > 0:
+            speak(f"{remaining_time} seconds remaining")
+            t.sleep(1)
+            remaining_time -= 1
+        speak("Time's up! Reminder: " + reminder_text)
+        winsound.Beep(300, 2000)
+
+    countdown_timer()
 
 
-def play_music():
-    music_dir = (
-        r"https://open.spotify.com/track/7eBsnbBBaPJuhxcoJwsK3P?si=833a61e67332488d"
+def play_web_music():
+    music_url = (
+        "https://open.spotify.com/track/7eBsnbBBaPJuhxcoJwsK3P?si=833a61e67332488d"
     )
-    songs = os.listdir(music_dir)
-    os.startfile(os.path.join(music_dir, songs[0]))
-    speak("Playing music.")
+    wb.open(music_url)
+    return speak("Playing spotify music.")
+
+
+print(os.getcwd())
+
+
+def play_random_music():
+    music_dir = f"{os.getcwd()}\\farmer_david\\music\\music.mp3"
+    # if not os.path.exists(music_dir):
+    #     speak("Music directory not found.")
+    #     return
+    # music_files = [f for f in os.listdir(music_dir) if f.endswith(".mp3")]
+    # if not music_files:
+    #     speak("No music files found in the music directory.")
+    #     return
+    # random_music = os.path.join(music_dir, random.choice(music_files))
+    os.startfile(music_dir)
+    return speak("Playing random music.")
+
+
+def play_music(music_query):
+    if "spotify" in music_query:
+        play_web_music()
+    else:
+        play_random_music()
 
 
 def read_news():
-    news_api_key = "498bad955079449db68742a02e173a71"
     url = f"https://newsapi.org/v2/top-headlines?country=us&apiKey={news_api_key}"
     response = requests.get(url)
     if response.status_code == 200:
@@ -120,14 +160,23 @@ def read_news():
         speak("I couldn't fetch the news. Please try again later.")
 
 
+api_key = os.environ.get("OPENAI_API_KEY")
+
+
 def job_information(query):
-    response = openai.Completion.create(
-        engine="text-davinci-003",
-        prompt=f"Provide a detailed job description and qualifications for the following role: {query}",
-        max_tokens=150,
-    )
-    job_info = response.choices[0].text.strip()
-    speak(job_info)
+    try:
+        response = openai.Completion.create(
+            engine="text-ada-001",
+            prompt=f"Provide a detailed job description and qualifications for the following role: {query}",
+            max_tokens=150,
+            api_key=api_key,
+        )
+        print(response, "response")
+        job_info = response.choices[0].text.strip()
+        speak(job_info)
+    except Exception as e:
+        print(f"An error occurred while fetching job information: {str(e)}")
+        speak("Sorry, I couldn't fetch job information at the moment.")
 
 
 def process_command():
@@ -152,7 +201,7 @@ def process_command():
             os.startfile(video_path)
             speak("Opening the video.")
         elif (
-            "open vscode" in query
+            "open code" in query
             or "code" in query
             or "vscode" in query
             or "visual studio code" in query
@@ -176,8 +225,11 @@ def process_command():
         elif "open gmail" in query:
             wb.get().open("https://mail.google.com")
             speak("Opening Gmail.")
-        elif "play music" in query:
-            play_music()
+        elif "music" in query:
+            speak("Do you want to play local or spotify music?")
+            music_query = get_command()
+            if music_query:
+                play_music(music_query)
         elif "set reminder" in query:
             speak("What should I remind you about?")
             reminder_text = get_command()
@@ -187,12 +239,22 @@ def process_command():
                 set_reminder(reminder_text, duration)
         elif "news" in query:
             read_news()
+        elif any(word in query for word in ["thanks", "thank you", "love u"]):
+            speak("My pleasure, do you need any other assistance from me, Son")
+            continue_or_end = get_command()
+            if "no" in continue_or_end:
+                speak("Goodbye, sir.")
+                quit()
+            else:
+                speak("What do you want to order?")
         elif "job" in query:
             speak("What job information do you need?")
             job_query = get_command()
             if job_query:
                 job_information(job_query)
-        elif "exit" in query or "stop" in query or "quit" in query:
+        elif any(
+            word in query for word in ["exit", "goodbye", "bye-bye", "bye", "quit"]
+        ):
             speak("Goodbye, sir.")
             return False
     return True
