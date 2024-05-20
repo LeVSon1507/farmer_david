@@ -9,8 +9,6 @@ from os.path import join, dirname
 from dotenv import load_dotenv
 import requests
 
-# import openai
-
 dotenv_path = join(dirname(__file__), ".env")
 load_dotenv(dotenv_path)
 weather_api_key = os.getenv("WEATHER_API_KEY")
@@ -122,14 +120,15 @@ def play_web_music():
         "https://open.spotify.com/track/7eBsnbBBaPJuhxcoJwsK3P?si=833a61e67332488d"
     )
     wb.open(music_url)
-    return speak("Playing spotify music.")
-
-
-print(os.getcwd())
+    speak("Playing spotify music.")
 
 
 def play_random_music():
-    music_dir = f"{os.getcwd()}\\farmer_david\\music\\music.mp3"
+    if "farmer_david" in os.getcwd():
+        music_dir = f"{os.getcwd()}\\music\\music.mp3"
+    else:
+        music_dir = f"{os.getcwd()}\\farmer_david\\music\\music.mp3"
+
     # if not os.path.exists(music_dir):
     #     speak("Music directory not found.")
     #     return
@@ -139,7 +138,7 @@ def play_random_music():
     #     return
     # random_music = os.path.join(music_dir, random.choice(music_files))
     os.startfile(music_dir)
-    return speak("Playing random music.")
+    speak("Playing random music.")
 
 
 def play_music(music_query):
@@ -161,22 +160,9 @@ def read_news():
         speak("I couldn't fetch the news. Please try again later.")
 
 
-api_key = os.environ.get("OPENAI_API_KEY")
-
-
 def job_information(query):
     try:
-        # response = openai.Completion.create(
-        #     engine="text-ada-001",
-        #     prompt=f"Provide a detailed job description and qualifications for the following role: {query}",
-        #     max_tokens=150,
-        #     api_key=api_key,
-        # )
-        # print(response, "response")
-        # job_info = response.choices[0].text.strip()
-        # speak(job_info)
         speak(f"The data for job {query} not available, sorry sir!")
-        # speak("This feature will be implement later, sorry for that inconvenient!")
     except Exception as e:
         print(f"An error occurred while fetching job information: {str(e)}")
         speak("Sorry, I couldn't fetch job information at the moment.")
