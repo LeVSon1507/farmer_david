@@ -21,7 +21,7 @@ farmer_david.setProperty("voice", voice[0].id)
 
 
 def speak(audio):
-    print("Farmer David Says: " + audio)
+    print("Farmer David: " + audio)
     farmer_david.say(audio)
     farmer_david.runAndWait()
 
@@ -197,8 +197,9 @@ def process_command():
                 wb.get().open(url)
                 speak(f"Here are the results for {search} on YouTube.")
         elif "open video" in query:
-            video_path = r"C:\Users\TECHCARE\Downloads\debug.mp4"
-            os.startfile(video_path)
+            # video_path = r"C:\Users\TECHCARE\Downloads\debug.mp4"
+            video_path = r"https://www.youtube.com/watch?v=j2QWzvLxtR4"
+            wb.open(video_path)
             speak("Opening the video.")
         elif (
             "open code" in query
