@@ -46,12 +46,14 @@ def welcome():
 def get_command():
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
-        recognizer.pause_threshold = 2
+        recognizer.pause_threshold = 0.5
+        recognizer.energy_threshold = 300
         print("Listening...")
         audio = recognizer.listen(source)
     try:
         print("Recognizing...")
         query = recognizer.recognize_google(audio, language="en")
+        farmer_david.runAndWait()
         print("Son Le: " + query)
     except sr.UnknownValueError:
         speak("I didn't catch that. Please type or speak again.")
@@ -144,7 +146,7 @@ def play_random_music():
 def play_music(music_query):
     if "spotify" in music_query:
         play_web_music()
-    else:
+    elif "local" or r"It's to you" or "random" in music_query:
         play_random_music()
 
 
