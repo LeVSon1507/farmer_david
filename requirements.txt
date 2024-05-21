@@ -13,6 +13,7 @@ idna==3.7
 multidict==6.0.5
 openai==0.28.0
 pydantic==2.7.1
+pywin32
 pypiwin32==223
 python-dotenv==1.0.1
 pyttsx3==2.90

@@ -14,7 +14,7 @@ load_dotenv(dotenv_path)
 weather_api_key = os.getenv("WEATHER_API_KEY")
 news_api_key = os.getenv("NEWS_API_KEY")
 
-farmer_david = pyttsx3.init()
+farmer_david = pyttsx3.init("sapi5")
 voice = farmer_david.getProperty("voices")
 farmer_david.setProperty("voice", voice[0].id)
 
@@ -46,34 +46,44 @@ def welcome():
 def get_command():
     recognizer = sr.Recognizer()
     with sr.Microphone() as source:
-        recognizer.pause_threshold = 0.5
-        recognizer.energy_threshold = 300
+        # recognizer.pause_threshold = 0.5
+        recognizer.dynamic_energy_threshold = True
+        # recognizer.energy_threshold = 300
         print("Listening...")
         audio = recognizer.listen(source)
     try:
         print("Recognizing...")
         query = recognizer.recognize_google(audio, language="en")
-        farmer_david.runAndWait()
+        # farmer_david.runAndWait()
         print("Son Le: " + query)
     except sr.UnknownValueError:
-        speak("I didn't catch that. Please type or speak again.")
-        return input("Type your command: ").lower()
+        speak("I didn't catch that. Please try again.")
+        # speak("I didn't catch that. Please type or speak again.")
+        # return input("Type your command: ")
+        return get_command()
     except sr.RequestError:
         speak("Sorry, I'm having trouble connecting to the service.")
         return None
     return query.lower()
 
 
+# def find_vscode_path():
+#     possible_paths = [
+#         r"C:\Program Files\Microsoft VS Code\Code.exe",
+#         r"C:\Program Files (x86)\Microsoft VS Code\Code.exe",
+#         os.path.expandvars(r"%LOCALAPPDATA%\Programs\Microsoft VS Code\Code.exe"),
+#     ]
+#     for path in possible_paths:
+#         if os.path.exists(path):
+#             return path
+#     return None
+
+
 def find_vscode_path():
-    possible_paths = [
-        r"C:\Program Files\Microsoft VS Code\Code.exe",
-        r"C:\Program Files (x86)\Microsoft VS Code\Code.exe",
-        os.path.expandvars(r"%LOCALAPPDATA%\Programs\Microsoft VS Code\Code.exe"),
-    ]
-    for path in possible_paths:
-        if os.path.exists(path):
-            return path
-    return None
+    import shutil
+
+    vscode_path = shutil.which("code")
+    return vscode_path
 
 
 def get_weather(city):
@@ -146,8 +156,15 @@ def play_random_music():
 def play_music(music_query):
     if "spotify" in music_query:
         play_web_music()
-    elif "local" or r"It's to you" or "random" in music_query:
+    elif "local" or r"it's to you" or "random" in music_query:
         play_random_music()
+    else:
+        speak("Sorry, I'm not sure what you want me to play. Please try again.")
+
+
+def convert_to_int(value):
+    number_words = {"one": 1, "two": 2, "three": 3, "four": 4, "five": 5}
+    return number_words.get(value, value)
 
 
 def read_news():
@@ -156,8 +173,30 @@ def read_news():
     if response.status_code == 200:
         articles = response.json()["articles"]
         headlines = [article["title"] for article in articles[:5]]
-        for i, headline in enumerate(headlines, 1):
+        for i, headline in enumerate(headlines, 0):
             speak(f"Headline {i}: {headline}")
+        speak("Which headline would you like to hear in detail? (Say the number)")
+        article_choice = get_command()
+        try:
+            article_index = convert_to_int(article_choice) - 1
+            if 0 <= article_index < 5:
+                selected_article = articles[article_index]
+                speak(selected_article["title"])
+                speak(selected_article["description"])
+                speak(
+                    "Would you like to open the article in your browser? (Say yes or no)"
+                )
+                open_article = get_command()
+                if open_article and "yes" in open_article:
+                    article_url = selected_article["url"]
+                    wb.open(article_url)
+                    speak("Opening the article.")
+                else:
+                    speak("Okay, no problem.")
+            else:
+                speak("Invalid choice. Please choose a number between 1 and 5.")
+        except ValueError:
+            speak("Invalid input. Please say a number.")
     else:
         speak("I couldn't fetch the news. Please try again later.")
 
@@ -249,6 +288,8 @@ def process_command():
         ):
             speak("Goodbye, sir.")
             return False
+        else:
+            speak("I don't understand. Can you please rephrase?")
     return True
 
 
@@ -257,4 +298,3 @@ if __name__ == "__main__":
     while True:
         if not process_command():
             break
-        t.sleep(1)
