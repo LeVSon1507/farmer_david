@@ -56,6 +56,18 @@ Farmer David is a Python-based virtual assistant that can perform various tasks 
 
 2. Follow the prompts and speak your commands to interact with Farmer David.
 
+3. Convert .py to .exe:
+
+   ```bash
+   python -m PyInstaller farmer_david.py
+   ```
+
+   or
+
+   ```bash
+   pyinstaller --onefile -w farmer_david.py
+   ```
+
 ## Contributing
 
 Contributions are welcome! If you have any suggestions, improvements, or bug fixes, feel free to open an issue or submit a pull request.

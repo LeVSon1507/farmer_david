@@ -1,0 +1,11 @@
+# Ignore build directory
+build/farmer_david
+build/main
+
+# Ignore dist directory
+dist/main
+dist/farmer_david
+
+# Ignore Python cache directories
+__pycache__/
+modules/__pycache__/
