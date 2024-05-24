@@ -48,6 +48,27 @@ Farmer David is a Python-based virtual assistant that can perform various tasks 
 
 ## Usage
 
+0. Prepare venv for `farmer david` script(optional):
+
+   Step 1:
+
+   ```bash
+   python -m venv venv
+   ```
+
+   Step 2: Activate venv
+   Windows:
+
+   ```bash
+   venv\Scripts\activate
+   ```
+
+   Linux/Mac:
+
+   ```bash
+   source venv/bin/activate
+   ```
+
 1. Run the `farmer_david.py` script:
 
    ```bash
@@ -59,13 +80,13 @@ Farmer David is a Python-based virtual assistant that can perform various tasks 
 3. Convert .py to .exe:
 
    ```bash
-   python -m PyInstaller farmer_david.py
+   python -m PyInstaller main.spec --noconfirm
    ```
 
    or
 
    ```bash
-   pyinstaller --onefile -w farmer_david.py
+   pyinstaller --onefile -w main.spec
    ```
 
 ## Contributing

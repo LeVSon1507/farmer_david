@@ -9,3 +9,6 @@ dist/farmer_david
 # Ignore Python cache directories
 __pycache__/
 modules/__pycache__/
+
+# Ignore virtual environment directory
+venv/

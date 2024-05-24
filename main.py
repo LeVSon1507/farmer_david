@@ -1,8 +1,6 @@
 import speech_recognition as sr
-import webbrowser as wb
 from dotenv import load_dotenv
 from os.path import join, dirname
-import os
 
 from modules import (
     handle_google_search,
@@ -24,9 +22,6 @@ from modules import (
 
 dotenv_path = join(dirname(__file__), ".env")
 load_dotenv()
-weather_api_key = os.getenv("WEATHER_API_KEY")
-news_api_key = os.getenv("NEWS_API_KEY")
-
 
 def process_command():
     query = get_command()
